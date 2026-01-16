@@ -58,19 +58,20 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="24dp">
+            android:padding="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="23dp">
 
                 <!-- 单词信息 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -83,8 +84,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Emoi"
-                            android:textSize="14sp"
-                            android:textColor="@color/gray" />
+                            android:textColor="@color/gray"
+                            android:textSize="14sp" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -116,79 +117,79 @@
                         android:id="@+id/favorite_icon"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@android:drawable/btn_star_big_off"
-                        android:padding="12dp" />
+                        android:padding="12dp"
+                        android:src="@android:drawable/btn_star_big_off" />
                 </LinearLayout>
 
                 <!-- 意思 -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="意味"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:layout_marginBottom="8dp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/meaning_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="感情が揺さぶられる、懐かしい、センチメンタル"
-                    android:textSize="14sp"
-                    android:textColor="@color/gray_dark"
                     android:layout_marginBottom="24dp"
-                    android:lineSpacingExtra="4dp" />
+                    android:lineSpacingExtra="4dp"
+                    android:text="感情が揺さぶられる、懐かしい、センチメンタル"
+                    android:textColor="@color/gray_dark"
+                    android:textSize="14sp" />
 
                 <!-- 解説 -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
                         android:text="🔥"
-                        android:textSize="20sp"
-                        android:layout_marginEnd="8dp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="解説"
+                        android:textColor="@color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/description_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="「emotional」が由来。景色や音楽、雰囲気に対して感動した時に使う万能な言葉。"
-                    android:textSize="14sp"
-                    android:textColor="@color/gray"
-                    android:paddingStart="12dp"
-                    android:paddingVertical="8dp"
                     android:layout_marginBottom="24dp"
-                    android:lineSpacingExtra="4dp" />
+                    android:lineSpacingExtra="4dp"
+                    android:paddingVertical="8dp"
+                    android:paddingStart="12dp"
+                    android:text="「emotional」が由来。景色や音楽、雰囲気に対して感動した時に使う万能な言葉。"
+                    android:textColor="@color/gray"
+                    android:textSize="14sp" />
 
                 <!-- シチュエーション劇場 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp"
                     android:background="@color/gray_light"
-                    android:padding="16dp"
-                    android:layout_marginBottom="16dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginBottom="12dp"
+                        android:orientation="horizontal">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -199,9 +200,9 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
                                 android:text="💬"
-                                android:textSize="20sp"
-                                android:layout_marginEnd="8dp" />
+                                android:textSize="20sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -237,20 +238,20 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
                     android:gravity="end"
-                    android:layout_marginTop="8dp">
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/play_button"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
-                        android:text="音声を再生"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
                         android:background="@color/black"
-                        android:paddingHorizontal="20dp" />
+                        android:paddingHorizontal="20dp"
+                        android:text="音声を再生"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

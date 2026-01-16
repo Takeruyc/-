@@ -1,5 +1,6 @@
 package jp.ac.jec.cm0136.android101;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -25,6 +26,11 @@ public class WordDetailActivity extends AppCompatActivity {
     private DialogueAdapter dialogueAdapter;
     private List<Dialogue> currentDialogues = new ArrayList<>();
     private Random random = new Random();
+
+    // 音频播放相关
+    private MediaPlayer mediaPlayer;
+    private int currentAudioIndex = 0;
+    private boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +135,9 @@ public class WordDetailActivity extends AppCompatActivity {
         });
 
         playButton.setOnClickListener(v -> toggleAudioPlayback(playButton));
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_play, 0, 0, 0
+        );
 
         // 设置底部关闭按钮
         Button closeBtn = findViewById(R.id.close_button_bottom);
@@ -175,30 +184,107 @@ public class WordDetailActivity extends AppCompatActivity {
     }
 
     private void toggleAudioPlayback(Button playButton) {
-        boolean isPlaying = playButton.getText().toString().equals("停止");
+//        boolean isPlaying = playButton.getText().toString().equals("停止");
+//
+//        System.out.println(word.getSoundsUrl());
+//
+//        if (isPlaying) {
+//            // 停止播放
+//            playButton.setText("音声を再生");
+//            playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                    android.R.drawable.ic_media_play, 0, 0, 0
+//            );
+//        } else {
+//            // 开始播放（模拟）
+//            playButton.setText("停止");
+//            playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                    android.R.drawable.ic_media_pause, 0, 0, 0
+//            );
+//
+//            // 模拟3秒音频播放
+//            handler.postDelayed(() -> {
+//                if (playButton.getText().toString().equals("停止")) {
+//                    playButton.setText("音声を再生");
+//                    playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                            android.R.drawable.ic_media_play, 0, 0, 0
+//                    );
+//                }
+//            }, 3000);
+//        }
+
+        List<String> soundUrls = word.getSoundsUrl();
+        if (soundUrls == null || soundUrls.isEmpty()) {
+            return;
+        }
 
         if (isPlaying) {
-            // 停止播放
-            playButton.setText("音声を再生");
-            playButton.setCompoundDrawablesWithIntrinsicBounds(
-                    android.R.drawable.ic_media_play, 0, 0, 0
-            );
+            stopPlayback(playButton);
         } else {
-            // 开始播放（模拟）
-            playButton.setText("停止");
-            playButton.setCompoundDrawablesWithIntrinsicBounds(
-                    android.R.drawable.ic_media_pause, 0, 0, 0
-            );
+            startPlayback(soundUrls, playButton);
+        }
+    }
 
-            // 模拟3秒音频播放
-            handler.postDelayed(() -> {
-                if (playButton.getText().toString().equals("停止")) {
-                    playButton.setText("音声を再生");
-                    playButton.setCompoundDrawablesWithIntrinsicBounds(
-                            android.R.drawable.ic_media_play, 0, 0, 0
-                    );
-                }
-            }, 3000);
+    // 开始播放
+    private void startPlayback(List<String> soundUrls, Button playButton) {
+        isPlaying = true;
+        currentAudioIndex = 0;
+
+        playButton.setText("停止");
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_pause, 0, 0, 0
+        );
+
+        playNext(soundUrls, playButton);
+    }
+
+    // 顺序播放 - 播放下一个（递归）
+    private void playNext(List<String> soundUrls, Button playButton) {
+
+        if (!isPlaying || currentAudioIndex >= soundUrls.size()) {
+            stopPlayback(playButton);
+            return;
+        }
+
+        String url = soundUrls.get(currentAudioIndex);
+
+        releaseMediaPlayer();
+
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                currentAudioIndex++;
+                playNext(soundUrls, playButton);
+            });
+
+            mediaPlayer.prepareAsync();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            stopPlayback(playButton);
+        }
+    }
+
+    // 停止播放
+    private void stopPlayback(Button playButton) {
+        isPlaying = false;
+        currentAudioIndex = 0;
+
+        releaseMediaPlayer();
+
+        playButton.setText("音声を再生");
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_play, 0, 0, 0
+        );
+    }
+
+    // 释放 MediaPlayer
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
     }
 
@@ -230,5 +316,12 @@ public class WordDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        isPlaying = false;
+        releaseMediaPlayer();
     }
 }

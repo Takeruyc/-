@@ -245,68 +245,70 @@
                 android:id="@+id/favorite_tabs_section"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/favorite_title_section"
+                app:layout_constraintBottom_toTopOf="@+id/favorite_recycler"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/favorite_title_section">
 
                 <RelativeLayout
                     android:id="@+id/standard_tab_button"
                     android:layout_width="0dp"
                     android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/tab_button_background"
-                    android:layout_marginEnd="8dp">
+                    android:background="@drawable/tab_button_background">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
                         android:text="定番"
                         android:textColor="@color/tab_button_text_color"
                         android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_centerInParent="true"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/standard_count_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="(0)"
-                        android:textColor="@color/gray"
-                        android:textSize="12sp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginEnd="16dp"/>
+                        android:layout_marginEnd="16dp"
+                        android:text="(0)"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp" />
                 </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/jirai_tab_button"
                     android:layout_width="0dp"
                     android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/tab_button_background"
-                    android:layout_marginStart="8dp">
+                    android:background="@drawable/tab_button_background">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
                         android:text="地雷"
                         android:textColor="@color/tab_button_text_color"
                         android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_centerInParent="true"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/jirai_count_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="(0)"
-                        android:textColor="@color/gray"
-                        android:textSize="12sp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginEnd="16dp"/>
+                        android:layout_marginEnd="16dp"
+                        android:text="(0)"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp" />
                 </RelativeLayout>
             </LinearLayout>
 
