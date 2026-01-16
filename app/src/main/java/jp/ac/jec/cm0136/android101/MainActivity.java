@@ -1,36 +1,87 @@
 package jp.ac.jec.cm0136.android101;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class MainActivity extends AppCompatActivity {
+
     private FrameLayout fragmentContainer;
-    private BottomNavigationView bottomNavigationView;
+    private BottomNavigationView bottomNavigation;
+    private HomeFragment homeFragment;
+    private ListFragment listFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         fragmentContainer = findViewById(R.id.fragment_container);
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+        bottomNavigation = findViewById(R.id.bottom_navigation);
+
+        // 初始化Fragments
+        homeFragment = new HomeFragment();
+        listFragment = new ListFragment();
+
+        // 设置底部导航监听器
+        bottomNavigation.setOnNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                loadFragment(new HomeFragment());
+                loadFragment(homeFragment);
                 return true;
             } else if (itemId == R.id.nav_list) {
-                loadFragment(new WordListFragment());
+                loadFragment(listFragment);
+                return true;
+            } else if (itemId == R.id.nav_lab) {
+                startActivity(LabActivity.createIntent(this));
                 return true;
             }
             return false;
         });
-        loadFragment(new HomeFragment());
+
+        // 设置底部导航栏颜色
+        setupBottomNavigationColors();
+
+        // 默认加载HomeFragment
+        loadFragment(homeFragment);
     }
+
     private void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    private void setupBottomNavigationColors() {
+        // 设置选中状态的颜色
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_checked },
+                new int[] { -android.R.attr.state_checked }
+        };
+
+        int[] colors = new int[] {
+                getResources().getColor(R.color.purple),
+                getResources().getColor(R.color.gray)
+        };
+
+        ColorStateList colorStateList = new ColorStateList(states, colors);
+
+        bottomNavigation.setItemIconTintList(colorStateList);
+        bottomNavigation.setItemTextColor(colorStateList);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (bottomNavigation.getSelectedItemId() != R.id.nav_home) {
+            bottomNavigation.setSelectedItemId(R.id.nav_home);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

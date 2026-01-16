@@ -4,7 +4,9 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@color/white"
-    android:padding="16dp"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp"
+    android:gravity="center_vertical"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
@@ -12,11 +14,10 @@
     <!-- 类型图标 -->
     <ImageView
         android:id="@+id/favorite_type_icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginEnd="12dp"
-        android:padding="8dp"
-        android:background="@color/blue_light"
+        android:padding="6dp"
         android:contentDescription="类型图标" />
 
     <!-- 单词文本 -->
@@ -26,17 +27,13 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="エモい"
-        android:textSize="18sp"
-        android:textStyle="normal"
-        android:textColor="@color/black"
-        android:gravity="center_vertical" />
+        android:textSize="16sp"
+        android:textColor="@color/black" />
 
-    <!-- 箭头图标（使用公共图标） -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="›"
-        android:textSize="24sp"
-        android:textColor="@color/gray"
-        android:gravity="center_vertical" />
+    <!-- 箭头图标 -->
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/ic_media_play"
+        android:tint="@color/gray" />
 </LinearLayout>

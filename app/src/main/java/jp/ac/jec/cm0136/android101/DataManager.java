@@ -1,92 +1,104 @@
 package jp.ac.jec.cm0136.android101;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class DataManager {
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
+public class DataManager {
+    private static final OkHttpClient client = new OkHttpClient();
     private static List<Word> words;
     private static Random random = new Random();
+    private static Word todayWord = null; // 用于缓存单词的变量
 
-    static {
-        initializeWords();
-    }
-
-    private static void initializeWords() {
+    public static void initializeWords(OnWordsLoadedListener listener) {
         words = new ArrayList<>();
 
-        words.add(new Word(
-                1,
-                "エモい",
-                "Emoi",
-                "感情が揺さぶられる、懐かしい、センチメンタル",
-                "standard",
-                3,
-                "「emotional」が由来。景色や音楽、雰囲気に対して感動した時に使う万能な言葉。ただし、ビジネスや公の場では避けるべき。",
-                Arrays.asList(
-                        new Dialogue("A", "ねえ、この夕焼け見て。"),
-                        new Dialogue("B", "うわ、めっちゃエモいね写真撮ろう。")
-                )
-        ));
+        Request request = new Request.Builder()
+                .url("https://takeruyc.codemoe.com/api/v1/app/word/list?pageSize=100000&current=1&column=create_time&order=asc&isDelete=0")
+                .get()
+                .build();
 
-        words.add(new Word(
-                2,
-                "詰んだ",
-                "Tsunda",
-                "解決策がない、終わった、絶望的状況",
-                "standard",
-                2,
-                "将棋の「詰み」から。試験前や失敗した時によく使うが、状況の深刻さを軽妙に表現するネットスラング。",
-                Arrays.asList(
-                        new Dialogue("A", "明日テストなのに教科書学校に忘れた。"),
-                        new Dialogue("B", "それは詰んだわ（笑）")
-                )
-        ));
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
 
-        words.add(new Word(
-                3,
-                "草",
-                "Kusa",
-                "笑える、面白い",
-                "standard",
-                1,
-                "ネットスラング。「www」が草に見えることから。日常会話でも「それは草」と言う人がいるが、非常口語化しておりリスクは低い。",
-                Arrays.asList(
-                        new Dialogue("A", "寝坊してパジャマで来ちゃった。"),
-                        new Dialogue("B", "まじ？それは草生えるわ。")
-                )
-        ));
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) return;
 
-        words.add(new Word(
-                4,
-                "地雷",
-                "Jirai",
-                "触れてはいけない話題、関わると面倒な人",
-                "jirai",
-                5,
-                "人の容姿や特定の趣味など、踏んではいけないポイント。精神的に不安定な人を指すこともあり、直接使うとトラブルの原因になる。",
-                Arrays.asList(
-                        new Dialogue("A", "あのアイドルの話、彼にしない方がいいよ。"),
-                        new Dialogue("B", "え、なんで？"),
-                        new Dialogue("A", "彼にとってそれは地雷だから。ガチギレされるよ。")
-                )
-        ));
+                assert response.body() != null;
+                String json = response.body().string();
+                parseWords(json);
 
-        words.add(new Word(
-                5,
-                "メンヘラ",
-                "Menhera",
-                "精神的に不安定、構ってちゃん",
-                "jirai",
-                4,
-                "「メンタルヘルス」から。他人に対して使うと悪口になる可能性が非常に高い。極度な自虐としてネットで使うことはある。",
-                Arrays.asList(
-                        new Dialogue("A", "最近、彼女からのLINEが多すぎて...。"),
-                        new Dialogue("B", "うわ、メンヘラ気質かもね。気をつけな。")
-                )
-        ));
+                if (listener != null) {
+                    listener.onWordsLoaded();
+                }
+            }
+        });
+    }
+
+    // 获取缓存的或新的随机单词的方法
+    public static Word getRandomWord() {
+        if (words == null || words.isEmpty()) {
+            return null;
+        }
+        // 如果 todayWord 尚未被赋值，则随机获取一个并缓存
+        if (todayWord == null) {
+            todayWord = words.get(random.nextInt(words.size()));
+        }
+        // 返回缓存的单词
+        return todayWord;
+    }
+
+    /**
+     * 【新增方法】
+     * 强制刷新并获取一个新的随机单词。
+     * 这个方法专门给刷新按钮使用。
+     * @return 一个新的随机单词
+     */
+    public static Word refreshTodayWord() {
+        // 1. 清除已缓存的单词
+        todayWord = null;
+
+        // 2. 调用 getRandomWord() 来获取一个全新的单词并返回
+        return getRandomWord();
+    }
+
+
+    // 网络请求单词列表的回调接口
+    public interface OnWordsLoadedListener {
+        void onWordsLoaded();
+    }
+
+    private static void parseWords(String json) {
+        Gson gson = new Gson();
+
+        Type type = new TypeToken<ApiResponse<List<Word>>>() {}.getType();
+        ApiResponse<List<Word>> response = gson.fromJson(json, type);
+
+        if (response != null && response.result != null) {
+            words = response.result;
+        } else {
+            words = new ArrayList<>();
+        }
+
+        System.out.println("反序列化完成，单词数量：" + words.size());
     }
 
     public static List<Word> getAllWords() {
@@ -102,21 +114,26 @@ public class DataManager {
         return words.get(0);
     }
 
-    public static Word getTodayWord() {
-        return words.get(0);
-    }
-
     public static List<Word> getWordsByType(String type) {
         List<Word> filtered = new ArrayList<>();
         for (Word word : words) {
-            if (type.equals("all") || word.getType().equals(type)) {
+            if ("all".equals(type) || word.getType().equals(type)) {
                 filtered.add(word);
             }
         }
         return filtered;
     }
 
-    public static List<Dialogue> generateNewDialogue(Word word) {
+    public static AnalysisResult getMockAnalysisResult() {
+        return new AnalysisResult(
+                85,
+                2,
+                "「マジで」は親しい友達間ならOK！でも、目上の人には「本当に」を使いましょう。",
+                "カジュアル"
+        );
+    }
+
+    public static List<Dialogue> generateAIDialogue(Word word) {
         String[] scenarios = {
                 "バイト先の休憩中",
                 "デート中",
@@ -124,12 +141,12 @@ public class DataManager {
                 "SNSのDM",
                 "ゲーム中のチャット"
         };
-
         String scenario = scenarios[random.nextInt(scenarios.length)];
 
         return Arrays.asList(
-                new Dialogue("A", scenario + "での会話例だよ。"),
-                new Dialogue("B", word.getWord() + "を使う場面を想像してみて。")
+                new Dialogue("A", "(" + scenario + ") この状況で「" + word.getWord() + "」を使ってみよう！"),
+                new Dialogue("B", "うん、例えば..."),
+                new Dialogue("A", "「" + word.getMeaning() + "」って感じで使えるね")
         );
     }
 }

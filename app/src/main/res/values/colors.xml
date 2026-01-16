@@ -1,30 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Material Design Colors -->
+    <!-- Material Design 默认颜色 -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-
-    <!-- 自定义颜色 -->
-    <color name="white">#FFFFFFFF</color>
-    <color name="white_20">#33FFFFFF</color>
-    <color name="white_70">#B3FFFFFF</color>
-    <color name="white_90">#E6FFFFFF</color>
     <color name="black">#FF000000</color>
-    <color name="gray_light">#FFF9FAFB</color>
-    <color name="gray_dark">#FF6B7280</color>
-    <color name="red_light">#FFFEE2E2</color>
-    <color name="red_dark">#FFDC2626</color>
-    <color name="blue_light">#FFDBEAFE</color>
-    <color name="blue_dark">#FF2563EB</color>
-    <color name="orange">#FFFF9800</color>
-    <color name="yellow_light">#FFFEF3C7</color>
-    <color name="yellow_dark">#FFD97706</color>
-    <color name="gray">#808080</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <!-- 导航栏颜色 -->
+    <!-- 应用主要颜色 -->
+    <color name="purple">#8B5CF6</color>
+    <color name="purple_dark">#7C3AED</color>
+    <color name="purple_light">#DDD6FE</color>
+    <color name="blue">#3B82F6</color>
+    <color name="blue_dark">#2563EB</color>
+    <color name="blue_light">#93C5FD</color>
+    <color name="red">#EF4444</color>
+    <color name="red_dark">#DC2626</color>
+    <color name="red_light">#FECACA</color>
+    <color name="orange">#F97316</color>
+    <color name="yellow">#FBBF24</color>
+    <color name="yellow_light">#FEF3C7</color>
+    <color name="yellow_dark">#D97706</color>
+    <color name="gray">#9CA3AF</color>
+    <color name="gray_light">#F3F4F6</color>
+    <color name="gray_lighter">#F9FAFB</color>
+    <color name="gray_lightest">#F8F9FA</color>
+    <color name="gray_dark">#6B7280</color>
 
-    <color name="nav_item_selected_color">#FF6200EE</color>
+    <!-- 透明色 -->
+    <color name="white_alpha">#99FFFFFF</color>
+    <color name="black_alpha">#33000000</color>
+    <color name="transparent_black">#66000000</color>
+    <color name="transparent">#00FFFFFF</color>
+
+    <!-- 渐变颜色 -->
+    <color name="purple_start">#8B5CF6</color>
+    <color name="purple_end">#6366F1</color>
+    <color name="blue_start">#3B82F6</color>
+    <color name="blue_end">#6366F1</color>
+    <color name="red_start">#EF4444</color>
+    <color name="red_end">#F87171</color>
+    <color name="black_start">#111827</color>
+    <color name="black_end">#374151</color>
+
 </resources>

@@ -1,7 +1,7 @@
 package jp.ac.jec.cm0136.android101;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +20,11 @@ public class WordAdapter extends ArrayAdapter<Word> {
     private Context context;
     private List<Word> originalList;
     private List<Word> filteredList;
+    private String currentFilter = "all";
+    private String currentSearch = "";
 
     public WordAdapter(@NonNull Context context, List<Word> words) {
-        super(context, R.layout.item_word, words);
+        super(context, 0, words);
         this.context = context;
         this.originalList = new ArrayList<>(words);
         this.filteredList = new ArrayList<>(words);
@@ -31,106 +33,115 @@ public class WordAdapter extends ArrayAdapter<Word> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Word word = getItem(position);
-
         if (convertView == null) {
             convertView = LayoutInflater.from(context)
                     .inflate(R.layout.item_word, parent, false);
         }
 
-        if (word != null) {
-            TextView wordText = convertView.findViewById(R.id.word_text);
-            TextView meaningText = convertView.findViewById(R.id.meaning_text);
-            TextView typeText = convertView.findViewById(R.id.type_text);
-            ImageView dangerIcon = convertView.findViewById(R.id.danger_icon);
-            LinearLayout dangerLevelLayout = convertView.findViewById(R.id.danger_level_layout);
+        Word word = getItem(position);
+        if (word == null) return convertView;
 
-            wordText.setText(word.getWord());
+        // 设置UI组件
+        TextView wordText = convertView.findViewById(R.id.word_text);
+        TextView meaningText = convertView.findViewById(R.id.meaning_text);
+        TextView typeBadge = convertView.findViewById(R.id.type_badge);
+        ImageView favoriteIcon = convertView.findViewById(R.id.favorite_icon);
+        LinearLayout dangerLevelLayout = convertView.findViewById(R.id.danger_level_layout);
 
-            String meaning = word.getMeaning();
-            if (meaning.length() > 30) {
-                meaning = meaning.substring(0, 30) + "...";
-            }
-            meaningText.setText(meaning);
+        // 设置数据
+        wordText.setText(word.getWord());
+        meaningText.setText(word.getMeaning());
 
-            if ("jirai".equals(word.getType())) {
-                typeText.setText("Risk");
-                typeText.setBackgroundResource(R.drawable.bg_red_tag);
-                typeText.setTextColor(ContextCompat.getColor(context, R.color.red_dark));
-                dangerIcon.setVisibility(View.VISIBLE);
-            } else {
-                typeText.setText("Safe");
-                typeText.setBackgroundResource(R.drawable.bg_blue_tag);
-                typeText.setTextColor(ContextCompat.getColor(context, R.color.blue_dark));
-                dangerIcon.setVisibility(View.GONE);
-            }
-
-            setupDangerLevel(dangerLevelLayout, word.getDangerLevel());
+        // 设置类型徽章
+        if ("jirai".equals(word.getType())) {
+            typeBadge.setText("Risk");
+            typeBadge.setBackgroundColor(ContextCompat.getColor(context, R.color.red_light));
+            typeBadge.setTextColor(ContextCompat.getColor(context, R.color.red_dark));
+        } else {
+            typeBadge.setText("Safe");
+            typeBadge.setBackgroundColor(ContextCompat.getColor(context, R.color.blue_light));
+            typeBadge.setTextColor(ContextCompat.getColor(context, R.color.blue_dark));
         }
+
+        // 设置危险等级
+        setupDangerLevel(dangerLevelLayout, word.getDangerLevel());
+
+        // 设置收藏状态
+        boolean isFavorite = SharedPrefManager.isFavorite(context, word.getId());
+        favoriteIcon.setActivated(isFavorite);
+
+        // -- 点击事件修复 --
+
+        // 1. 给星星图标设置点击事件
+        favoriteIcon.setOnClickListener(v -> {
+            boolean currentlyFavorite = SharedPrefManager.isFavorite(context, word.getId());
+            if (currentlyFavorite) {
+                SharedPrefManager.removeFavorite(context, word.getId());
+            } else {
+                SharedPrefManager.addFavorite(context, word.getId());
+            }
+            favoriteIcon.setActivated(!currentlyFavorite);
+        });
+
+        // 2. 给整个列表项设置点击事件来打开详情页
+        convertView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, WordDetailActivity.class);
+            intent.putExtra("word_id", word.getId());
+            context.startActivity(intent);
+        });
 
         return convertView;
     }
 
+    // (后面的代码保持不变...)
+
     private void setupDangerLevel(LinearLayout layout, int level) {
         layout.removeAllViews();
-
+        int dotWidth = dpToPx(16), dotHeight = dpToPx(8), margin = dpToPx(2);
         for (int i = 0; i < 5; i++) {
             View dot = new View(context);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    dpToPx(16), dpToPx(8)
-            );
-            params.setMargins(dpToPx(2), 0, dpToPx(2), 0);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotWidth, dotHeight);
+            params.setMargins(margin, 0, margin, 0);
             dot.setLayoutParams(params);
-
             if (i < level) {
-                if (level >= 4) {
-                    dot.setBackgroundColor(ContextCompat.getColor(context, R.color.red_dark));
-                } else {
-                    dot.setBackgroundColor(ContextCompat.getColor(context, R.color.orange));
-                }
+                dot.setBackgroundColor(ContextCompat.getColor(context, level >= 4 ? R.color.red_dark : R.color.orange));
             } else {
                 dot.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_light));
             }
-            dot.setBackgroundResource(R.drawable.danger_dot_bg);
-
             layout.addView(dot);
         }
     }
 
     private int dpToPx(int dp) {
-        float density = context.getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
     }
 
     public void filter(String query, String filterType) {
         filteredList.clear();
+        currentSearch = query != null ? query.toLowerCase() : "";
+        currentFilter = filterType;
 
         for (Word word : originalList) {
-            boolean matchesQuery = true;
-            boolean matchesType = true;
+            boolean matchesSearch = currentSearch.isEmpty() ||
+                    word.getWord().toLowerCase().contains(currentSearch) ||
+                    word.getMeaning().toLowerCase().contains(currentSearch) ||
+                    word.getReading().toLowerCase().contains(currentSearch);
 
-            if (query != null && !query.isEmpty()) {
-                String lowerQuery = query.toLowerCase();
-                matchesQuery = word.getWord().toLowerCase().contains(lowerQuery) ||
-                        word.getMeaning().toLowerCase().contains(lowerQuery) ||
-                        word.getReading().toLowerCase().contains(lowerQuery);
+            boolean matchesFilter;
+            if ("all".equals(filterType) || "すべて".equals(filterType)) {
+                matchesFilter = true;
+            } else if ("standard".equals(filterType) || "定番".equals(filterType)) {
+                matchesFilter = "standard".equals(word.getType());
+            } else if ("jirai".equals(filterType) || "地雷".equals(filterType)) {
+                matchesFilter = "jirai".equals(word.getType());
+            } else {
+                matchesFilter = true;
             }
 
-            if (filterType != null && !filterType.equals("すべて")) {
-                if (filterType.equals("定番")) {
-                    matchesType = "standard".equals(word.getType());
-                } else if (filterType.equals("地雷")) {
-                    matchesType = "jirai".equals(word.getType());
-                }
-            }
-
-            if (matchesQuery && matchesType) {
+            if (matchesSearch && matchesFilter) {
                 filteredList.add(word);
             }
         }
-
-        clear();
-        addAll(filteredList);
         notifyDataSetChanged();
     }
 

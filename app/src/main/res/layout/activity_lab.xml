@@ -1,263 +1,254 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:paddingBottom="56dp">
+    android:background="@color/gray_light"
+    android:padding="16dp"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- 头部 -->
-        <LinearLayout
+        <!-- Header -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="16dp">
 
-            <!-- 返回按钮（使用系统图标） -->
             <ImageView
                 android:id="@+id/back_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_revert"
-                android:padding="12dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@color/gray"
+                android:background="@drawable/icon_container_background"
+                android:padding="8dp"
+                android:layout_centerVertical="true"
                 android:clickable="true"
                 android:focusable="true" />
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical">
+                android:text="AI 毒舌鑑定室"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/purple_dark"
+                android:layout_centerInParent="true" />
 
-                <!-- 使用纯色文本，不要渐变背景 -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AI 毒舌鑑定室"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/purple" />
+            <ImageView
+                android:id="@+id/history_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_menu_recent_history"
+                android:tint="@color/gray"
+                android:background="@drawable/icon_container_background"
+                android:padding="8dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="あなたが使いたい日本語の「ノリ」と「地雷度」をAIが判定します。"
-                    android:textSize="12sp"
-                    android:textColor="@color/gray"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-        </LinearLayout>
+        </RelativeLayout>
 
-        <!-- API警告（简化背景） -->
+        <!-- API Warning -->
         <TextView
             android:id="@+id/warning_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="API Keyが見つかりません。AI功能在模拟模式下运行。"
+            android:text="API Keyが見つかりません。AI機能はシミュレーションモードで実行されています。"
             android:textSize="12sp"
-            android:textColor="@color/yellow_dark"
-            android:background="@color/yellow_light"
+            android:textColor="#856404"
+            android:background="#fff3cd"
             android:padding="12dp"
             android:visibility="gone"
             android:layout_marginBottom="16dp" />
 
-        <!-- 输入区域（简化背景） -->
-        <LinearLayout
+        <!-- Input Card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white"
-            android:padding="16dp"
-            android:layout_marginBottom="24dp"
-            android:elevation="4dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="24dp">
 
-            <EditText
-                android:id="@+id/input_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:hint="ここに覚えたスラングを使った文章を入力してね... (例: 今日はマジで詰んだわ)"
-                android:textSize="18sp"
-                android:background="@null"
-                android:gravity="top"
-                android:maxLines="5"
-                android:inputType="textMultiLine" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp">
-
-                <TextView
-                    android:id="@+id/char_count_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0/80"
-                    android:textSize="12sp"
-                    android:textColor="@color/gray" />
-
-                <Button
-                    android:id="@+id/analyze_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="鑑定する"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:background="@color/black"
-                    android:paddingHorizontal="20dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 结果区域（简化背景） -->
-        <LinearLayout
-            android:id="@+id/result_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/purple"
-            android:padding="24dp"
-            android:visibility="gone"
-            android:layout_marginBottom="24dp"
-            android:elevation="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Vibe Score"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white_alpha" />
-
-                    <TextView
-                        android:id="@+id/score_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="85点"
-                        android:textSize="48sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="end">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Danger Lv."
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white_alpha" />
-
-                    <LinearLayout
-                        android:id="@+id/danger_dots_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 反馈区域（简化背景） -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/black_alpha"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✨ アドバイス"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:layout_marginBottom="8dp" />
+                <EditText
+                    android:id="@+id/input_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:hint="ここにスラングを使った文章を入力してね... (例: 今日はマジで詰んだ)"
+                    android:textSize="16sp"
+                    android:background="@null"
+                    android:gravity="top"
+                    android:padding="8dp"
+                    android:textColor="@color/black" />
 
-                <TextView
-                    android:id="@+id/feedback_text"
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="「マジで」は親しい友達間ならOK！でも、目上の人には「本当に」を使いましょう。"
-                    android:textSize="14sp"
-                    android:textColor="@color/white"
-                    android:lineSpacingExtra="4dp" />
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:id="@+id/char_count_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0/80"
+                        android:textSize="12sp"
+                        android:textColor="@color/gray"
+                        android:layout_centerVertical="true" />
+
+                    <Button
+                        android:id="@+id/analyze_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="鑑定する"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:background="@color/purple"
+                        android:layout_alignParentEnd="true" />
+                </RelativeLayout>
             </LinearLayout>
-
-            <!-- Vibe标签（简化背景） -->
-            <TextView
-                android:id="@+id/vibe_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="雰囲気: カジュアル"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@color/white_alpha"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp" />
-        </LinearLayout>
-
-        <!-- 加载指示器 -->
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            android:layout_marginTop="48dp"
-            android:layout_marginBottom="48dp" />
-
-        <!-- 空状态 -->
+        </androidx.cardview.widget.CardView>
+        
+        <!-- Empty State (before analysis) -->
         <LinearLayout
             android:id="@+id/empty_state"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:visibility="visible"
-            android:padding="48dp">
-
+            android:paddingVertical="40dp"
+            android:visibility="visible">
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_dialog_info"
+                app:tint="@color/gray_light" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="✨"
-                android:textSize="48sp"
-                android:layout_marginBottom="16dp" />
+                android:text="AIがあなたの文章を待っています..."
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:layout_marginTop="16dp"/>
+        </LinearLayout>
 
-            <TextView
-                android:id="@+id/dangerLevelText"
+        <!-- Loading Indicator -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="レベル 2"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginTop="8dp" />
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginVertical="60dp" />
+
+        <!-- Result Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/result_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Score and Danger -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+                    
+                    <jp.ac.jec.cm0136.android101.CircularProgressBar
+                        android:id="@+id/score_progress_bar"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="地雷度"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray"/>
+                        <LinearLayout
+                            android:id="@+id/danger_dots_layout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp"/>
+                         <TextView
+                            android:id="@+id/vibe_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="雰囲気: カジュアル"
+                            android:textSize="12sp"
+                            android:textColor="@color/purple"
+                            android:background="@drawable/tag_background"
+                            android:backgroundTint="#DDD6FE"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
+                            android:layout_marginTop="12dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+                
+                <!-- Feedback -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@color/gray_light"
+                    android:padding="16dp">
+                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AIからのアドバイス"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_marginBottom="8dp"/>
+                    <TextView
+                        android:id="@+id/feedback_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="フィードバックはここに表示されます。"
+                        android:textColor="@color/gray_dark"
+                        android:lineSpacingExtra="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        
+        <!-- Retry Button -->
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="もう一度試す"
+            android:textSize="16sp"
+            android:textColor="@color/purple"
+            android:background="@drawable/tab_button_background"
+            android:visibility="gone"/>
+
     </LinearLayout>
 </ScrollView>

@@ -104,7 +104,6 @@
                 android:layout_marginBottom="16dp" />
 
             <TextView
-                android:id="@+id/empty_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="該当する単語は見つかりませんでした。"

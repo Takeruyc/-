@@ -1,107 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/transparent_black">
 
+    <!-- 主卡片 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_margin="24dp"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:elevation="24dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
-        <!-- 顶部渐变条 -->
+        <!-- 头部背景 -->
         <LinearLayout
-            android:id="@+id/header_gradient"
+            android:id="@+id/header_background"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
+            android:minHeight="120dp"
+            android:background="@color/purple"
             android:orientation="vertical"
-            android:background="@drawable/bg_gradient_header"
-            android:padding="20dp">
+            android:gravity="center"
+            android:paddingHorizontal="24dp">
 
+            <!-- 关闭按钮 -->
             <ImageView
-                android:id="@+id/back_button"
+                android:id="@+id/close_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_back"
-                android:background="@drawable/circle_bg_white_20"
-                android:layout_alignParentEnd="true"
-                android:contentDescription="返回" />
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@color/white"
+                android:background="@color/black_alpha"
+                android:padding="8dp"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp" />
 
+            <!-- 单词 -->
             <TextView
                 android:id="@+id/word_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="エモい"
                 android:textSize="36sp"
-                android:textColor="@color/white"
                 android:textStyle="bold"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp" />
-
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:letterSpacing="0.05" />
         </LinearLayout>
 
-        <!-- 单词信息卡片 -->
-        <androidx.cardview.widget.CardView
+        <!-- 内容区域 -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:layout_marginTop="-40dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:orientation="vertical">
 
-                <!-- 单词基本信息 -->
-                <TextView
-                    android:id="@+id/reading_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Emoi"
-                    android:textColor="@color/gray_dark"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- 类型和危险等级 -->
+                <!-- 单词信息 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
                     android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:id="@+id/type_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="定番"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:layout_marginEnd="12dp" />
-
                     <LinearLayout
-                        android:id="@+id/danger_level_layout"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:id="@+id/reading_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Emoi"
+                            android:textSize="14sp"
+                            android:textColor="@color/gray" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/type_badge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="4dp"
+                                android:text="定番"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:id="@+id/danger_level_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- 收藏按钮 -->
+                    <ImageView
+                        android:id="@+id/favorite_icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@android:drawable/btn_star_big_off"
+                        android:padding="12dp" />
                 </LinearLayout>
 
-                <!-- 含义 -->
+                <!-- 意思 -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="意味"
-                    android:textSize="16sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:id="@+id/meaning_text"
@@ -110,19 +137,31 @@
                     android:text="感情が揺さぶられる、懐かしい、センチメンタル"
                     android:textSize="14sp"
                     android:textColor="@color/gray_dark"
-                    android:layout_marginBottom="24dp" />
+                    android:layout_marginBottom="24dp"
+                    android:lineSpacingExtra="4dp" />
 
-                <!-- 解释 -->
-                <TextView
+                <!-- 解説 -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="解説"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginBottom="4dp"
-                    android:drawableStart="@drawable/ic_fire_small"
-                    android:drawablePadding="8dp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔥"
+                        android:textSize="20sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="解説"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/description_text"
@@ -130,76 +169,111 @@
                     android:layout_height="wrap_content"
                     android:text="「emotional」が由来。景色や音楽、雰囲気に対して感動した時に使う万能な言葉。"
                     android:textSize="14sp"
-                    android:textColor="@color/gray_dark"
-                    android:paddingStart="4dp"
-                    android:layout_marginBottom="24dp" />
+                    android:textColor="@color/gray"
+                    android:paddingStart="12dp"
+                    android:paddingVertical="8dp"
+                    android:layout_marginBottom="24dp"
+                    android:lineSpacingExtra="4dp" />
 
-                <!-- 对话示例 -->
+                <!-- シチュエーション劇場 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:background="@color/gray_light"
                     android:padding="16dp"
-                    android:layout_marginBottom="24dp"
-                    android:paddingBottom="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="シチュエーション劇場"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:drawableStart="@drawable/ic_message"
-                        android:drawablePadding="8dp"
-                        android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="16dp">
 
                     <LinearLayout
-                        android:id="@+id/dialogue_layout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical" />
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
 
-                    <Button
-                        android:id="@+id/remix_button"
-                        android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="💬"
+                                android:textSize="20sp"
+                                android:layout_marginEnd="8dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="シチュエーション劇場"
+                                android:textColor="@color/gray_dark"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- AI Remix按钮 -->
+                        <Button
+                            android:id="@+id/remix_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:background="@color/purple"
+                            android:paddingHorizontal="12dp"
+                            android:text="AI Remix"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- 对话列表 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/dialogue_recycler"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="AI Remix"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:background="@drawable/button_gradient_purple"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="12dp"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp" />
-
+                        android:minHeight="120dp" />
                 </LinearLayout>
 
-                <!-- 操作按钮 -->
+                <!-- 音声按钮 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="end">
+                    android:gravity="end"
+                    android:layout_marginTop="8dp">
 
                     <Button
                         android:id="@+id/play_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:text="音声を再生"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:background="@drawable/button_black"
-                        android:paddingHorizontal="20dp"
-                        android:paddingVertical="12dp" />
-
+                        android:background="@color/black"
+                        android:paddingHorizontal="20dp" />
                 </LinearLayout>
-
             </LinearLayout>
+        </ScrollView>
 
-        </androidx.cardview.widget.CardView>
+        <!-- 底部按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@color/gray_lightest">
 
+            <!-- 在底部按钮区域添加id -->
+            <Button
+                android:id="@+id/close_button_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="閉じる"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@color/black"
+                android:gravity="center" />
+        </LinearLayout>
     </LinearLayout>
-
-</ScrollView>
+</RelativeLayout>

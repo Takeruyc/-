@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 选中状态 (state_activated="true")，显示黄色星星 -->
+    <item android:drawable="@drawable/ic_star_favorited_clean" android:state_activated="true" />
+    <!-- 默认状态，显示白色星星 -->
+    <item android:drawable="@drawable/ic_star_default_clean" />
+</selector>
