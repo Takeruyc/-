@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material Design Colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- 自定义颜色 -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="white_90">#E6FFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="gray_light">#FFF9FAFB</color>
+    <color name="gray_dark">#FF6B7280</color>
+    <color name="red_light">#FFFEE2E2</color>
+    <color name="red_dark">#FFDC2626</color>
+    <color name="blue_light">#FFDBEAFE</color>
+    <color name="blue_dark">#FF2563EB</color>
+    <color name="orange">#FFFF9800</color>
+    <color name="yellow_light">#FFFEF3C7</color>
+    <color name="yellow_dark">#FFD97706</color>
+    <color name="gray">#808080</color>
+
+    <!-- 导航栏颜色 -->
+
+    <color name="nav_item_selected_color">#FF6200EE</color>
+</resources>

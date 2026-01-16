@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">リアルジャパ</string>
+
+    <!-- 底部导航栏 -->
+    <string name="home">ホーム</string>
+    <string name="list">単語帳</string>
+
+    <!-- 通用 -->
+    <string name="search">検索...</string>
+    <string name="all">すべて</string>
+    <string name="standard">定番</string>
+    <string name="jirai">地雷</string>
+
+    <!-- AI实验室 -->
+    <string name="ai_lab_title">AI 毒舌鑑定室</string>
+    <string name="ai_lab_hint">ここに覚えたスラングを使った文章を入力してね...</string>
+    <string name="analyze_button">鑑定する</string>
+    <string name="back_home">ホームに戻る</string>
+    <string name="no_api_key_warning">API Keyが見つかりません。AI功能在模拟模式下运行。</string>
+
+    <!-- 单词详情 -->
+    <string name="meaning">意味</string>
+    <string name="explanation">解説</string>
+    <string name="dialogue_example">シチュエーション劇場</string>
+    <string name="play_audio">音声を再生</string>
+    <string name="stop_audio">停止</string>
+    <string name="ai_remix">AI Remix</string>
+    <string name="close">閉じる</string>
+
+    <!-- 首页 -->
+    <string name="todays_word">今日のヤバ単</string>
+    <string name="recommendation">あなたへの推薦</string>
+</resources>
