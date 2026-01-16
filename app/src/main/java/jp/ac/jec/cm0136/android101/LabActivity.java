@@ -16,6 +16,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class LabActivity extends AppCompatActivity {
 
     // Views
@@ -106,13 +122,83 @@ public class LabActivity extends AppCompatActivity {
         showLoadingState(true);
 
         // Simulate API call
-        handler.postDelayed(() -> {
+//            handler.postDelayed(() -> {
+//                showLoadingState(false);
+//                AnalysisResult result = DataManager.getMockAnalysisResult();
+//                displayResults(input, result);
+//            }, 1500);
+
+        try {
+            // 对 text 做 URL 编码
+            String encodedText = URLEncoder.encode(input, "UTF-8");
+
+            String url = "https://takeruyc.codemoe.com/api/v1/app/aiLab/kotobaCheck?text=" + encodedText;
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(90, TimeUnit.SECONDS)
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> {
+                        showLoadingState(false);
+                        // 你可以在这里 toast 一个错误提示
+                    });
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        runOnUiThread(() -> showLoadingState(false));
+                        return;
+                    }
+
+                    String json = response.body().string();
+
+                    // 解析 JSON
+                    AnalysisResult result = parseAnalysisResult(json);
+
+                    System.out.println(json);
+
+                    runOnUiThread(() -> {
+                        showLoadingState(false);
+                        if (result != null) {
+                            displayResults(input, result);
+                        }
+                    });
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
             showLoadingState(false);
-            AnalysisResult result = DataManager.getMockAnalysisResult();
-            displayResults(input, result);
-        }, 1500);
+        }
     }
 
+    // 解析接口返回的json数据
+    private AnalysisResult parseAnalysisResult(String json){
+        Gson gson = new Gson();
+
+        Type type = new TypeToken<ApiResponse<AnalysisResult>>() {}.getType();
+        ApiResponse<AnalysisResult> response = gson.fromJson(json, type);
+
+        if (response != null && response.result != null) {
+            return response.result;
+        } else {
+            return null;
+        }
+    }
+
+    // 展示返回数据
     private void displayResults(String inputText, AnalysisResult result) {
         resultLayout.setVisibility(View.VISIBLE);
         retryButton.setVisibility(View.VISIBLE);
@@ -122,7 +208,7 @@ public class LabActivity extends AppCompatActivity {
 
         // Set feedback and vibe
         feedbackText.setText(result.getFeedback());
-        vibeText.setText("雰囲気: " + result.getVibe());
+        vibeText.setText(String.format("雰囲気: %s", result.getVibe()));
 
         // Set danger level dots
         setupDangerDots(result.getDangerLevel());
