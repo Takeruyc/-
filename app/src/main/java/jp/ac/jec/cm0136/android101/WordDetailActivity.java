@@ -14,9 +14,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class WordDetailActivity extends AppCompatActivity {
 
@@ -26,6 +39,9 @@ public class WordDetailActivity extends AppCompatActivity {
     private DialogueAdapter dialogueAdapter;
     private List<Dialogue> currentDialogues = new ArrayList<>();
     private Random random = new Random();
+
+    // AI REMIX
+    private Button remixButton;
 
     // 音频播放相关
     private MediaPlayer mediaPlayer;
@@ -66,7 +82,7 @@ public class WordDetailActivity extends AppCompatActivity {
         TextView typeBadge = findViewById(R.id.type_badge);
         LinearLayout dangerLevelLayout = findViewById(R.id.danger_level_layout);
         ImageView favoriteIcon = findViewById(R.id.favorite_icon);
-        Button remixButton = findViewById(R.id.remix_button);
+        remixButton = findViewById(R.id.remix_button);
         Button playButton = findViewById(R.id.play_button);
         RecyclerView dialogueRecycler = findViewById(R.id.dialogue_recycler);
         View headerBackground = findViewById(R.id.header_background);
@@ -123,15 +139,17 @@ public class WordDetailActivity extends AppCompatActivity {
             remixButton.setText("生成中...");
 
             // 模拟AI生成新对话
-            handler.postDelayed(() -> {
-                List<Dialogue> newDialogues = generateMockAIDialogue(word);
-                currentDialogues.clear();
-                currentDialogues.addAll(newDialogues);
-                dialogueAdapter.notifyDataSetChanged();
+//            handler.postDelayed(() -> {
+//                List<Dialogue> newDialogues = generateMockAIDialogue(word);
+//                currentDialogues.clear();
+//                currentDialogues.addAll(newDialogues);
+//                dialogueAdapter.notifyDataSetChanged();
+//
+//                remixButton.setEnabled(true);
+//                remixButton.setText("AI Remix");
+//            }, 1000);
 
-                remixButton.setEnabled(true);
-                remixButton.setText("AI Remix");
-            }, 1000);
+            requestAIDialogueRemix(word);
         });
 
         playButton.setOnClickListener(v -> toggleAudioPlayback(playButton));
@@ -286,6 +304,71 @@ public class WordDetailActivity extends AppCompatActivity {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    private void requestAIDialogueRemix(Word word) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        String url = "https://takeruyc.codemoe.com/api/v1/app/word/updateItemDialogue?id="
+                + word.getId();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    remixButton.setEnabled(true);
+                    remixButton.setText("AI Remix");
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+                    });
+                    return;
+                }
+
+                String json = response.body().string();
+
+                Gson gson = new Gson();
+                Type type = new TypeToken<ApiResponse<List<Dialogue>>>(){}.getType();
+                ApiResponse<List<Dialogue>> apiResponse =
+                        gson.fromJson(json, type);
+
+                if (apiResponse != null && apiResponse.success && apiResponse.result != null) {
+                    runOnUiThread(() -> {
+                        currentDialogues.clear();
+                        currentDialogues.addAll(apiResponse.result);
+                        dialogueAdapter.notifyDataSetChanged();
+
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+
+                        // 刷新列表中的对话信息
+                        DataManager.initializeWords(() -> {
+                            // do nothing...
+                        });
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+                    });
+                }
+            }
+        });
     }
 
     private List<Dialogue> generateMockAIDialogue(Word word) {
