@@ -295,7 +295,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
                         android:text="地雷"
-                        android:textColor="@color/tab_button_text_color"
+                        android:textColor="@color/tab_button_text_color_red"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
