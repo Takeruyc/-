@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,6 +45,9 @@ public class WordDetailActivity extends AppCompatActivity {
 
     // AI REMIX
     private Button remixButton;
+
+    // Voice Play Button
+    private Button playButton;
 
     // 音频播放相关
     private MediaPlayer mediaPlayer;
@@ -83,7 +89,7 @@ public class WordDetailActivity extends AppCompatActivity {
         LinearLayout dangerLevelLayout = findViewById(R.id.danger_level_layout);
         ImageView favoriteIcon = findViewById(R.id.favorite_icon);
         remixButton = findViewById(R.id.remix_button);
-        Button playButton = findViewById(R.id.play_button);
+        playButton = findViewById(R.id.play_button);
         RecyclerView dialogueRecycler = findViewById(R.id.dialogue_recycler);
         View headerBackground = findViewById(R.id.header_background);
 
@@ -286,7 +292,7 @@ public class WordDetailActivity extends AppCompatActivity {
     }
 
     // 停止播放
-    private void stopPlayback(Button playButton) {
+    private void stopPlayback(@NonNull Button playButton) {
         isPlaying = false;
         currentAudioIndex = 0;
 
@@ -321,21 +327,34 @@ public class WordDetailActivity extends AppCompatActivity {
                 .get()
                 .build();
 
+        System.out.println("AI REMIX START");
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> {
                     remixButton.setEnabled(true);
                     remixButton.setText("AI Remix");
+                    Toast.makeText(
+                            WordDetailActivity.this,
+                            "AI Remix Network Failed",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    System.out.println("AI REMIX FAILED");
                 });
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                System.out.println("AI REMIX SUCCESS");
                 if (!response.isSuccessful()) {
                     runOnUiThread(() -> {
                         remixButton.setEnabled(true);
                         remixButton.setText("AI Remix");
+                        Toast.makeText(
+                                WordDetailActivity.this,
+                                "AI Remix Failed",
+                                Toast.LENGTH_SHORT
+                        ).show();
                     });
                     return;
                 }
@@ -356,15 +375,127 @@ public class WordDetailActivity extends AppCompatActivity {
                         remixButton.setEnabled(true);
                         remixButton.setText("AI Remix");
 
-                        // 刷新列表中的对话信息
-                        DataManager.initializeWords(() -> {
-                            // do nothing...
-                        });
+                        Toast.makeText(
+                                WordDetailActivity.this,
+                                "AI Remix Success",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        // 更新语音信息
+                        playButton.setEnabled(false);
+                        playButton.setText("生成中...");
+                        requestGCPVoiceUpdate(word);
                     });
+
+
                 } else {
                     runOnUiThread(() -> {
                         remixButton.setEnabled(true);
                         remixButton.setText("AI Remix");
+                        Toast.makeText(
+                                WordDetailActivity.this,
+                                "AI Remix Server Failed",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void requestGCPVoiceUpdate(Word word) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+        String url = "https://takeruyc.codemoe.com/api/v1/app/word/updateItemVoice?id="
+                + word.getId();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        System.out.println("VOICE GEN START");
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    playButton.setEnabled(false);
+                    playButton.setText("Failed.");
+                    Toast.makeText(
+                            WordDetailActivity.this,
+                            "Voice Generation Network Failed.",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    System.out.println("VOICE GEN FAILED");
+                });
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException{
+                System.out.println("VOICE GEN SUCCESS");
+
+                if (!response.isSuccessful()) {
+                    Toast.makeText(
+                            WordDetailActivity.this,
+                            "Voice Generation Network Failed.",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    playButton.setEnabled(false);
+                    playButton.setText("Failed.");
+                }
+
+                String json = response.body().string();
+
+                Gson gson = new Gson();
+                Type type = new TypeToken<ApiResponse<List<String>>>(){}.getType();
+                ApiResponse<List<String>> apiResponse =
+                        gson.fromJson(json, type);
+
+                if (apiResponse != null && apiResponse.success && apiResponse.result != null) {
+                    runOnUiThread(() -> {
+                        word.getSoundsUrl().clear();
+                        word.getSoundsUrl().addAll(apiResponse.result);
+
+                        playButton.setEnabled(true);
+                        playButton.setText("音声を再生");
+                        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                                android.R.drawable.ic_media_play, 0, 0, 0
+                        );
+
+                        Toast.makeText(
+                                WordDetailActivity.this,
+                                "Voice Generation Success",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        // 刷新列表中的对话信息
+                        DataManager.initializeWords(() -> {
+//                            Toast.makeText(
+//                                    WordDetailActivity.this,
+//                                    "Word List Reload Success",
+//                                    Toast.LENGTH_SHORT
+//                            ).show();
+
+                            // do nothing...
+                            System.out.println("initializeWords SUCCESS");
+                        });
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(
+                                WordDetailActivity.this,
+                                "Voice Generation Server Failed",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        playButton.setEnabled(false);
+                        playButton.setText("Failed.");
                     });
                 }
             }
