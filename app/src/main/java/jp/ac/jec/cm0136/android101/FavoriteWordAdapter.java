@@ -68,16 +68,16 @@ public class FavoriteWordAdapter extends RecyclerView.Adapter<FavoriteWordAdapte
 
         public void bind(Word word) {
             wordText.setText(word.getWord());
+            typeIcon.setImageResource(android.R.drawable.btn_star); // Always use star icon
+            typeIcon.setBackgroundResource(R.drawable.bg_favorite_icon_circle);
 
             Context context = itemView.getContext();
             if ("jirai".equals(word.getType())) {
-                typeIcon.setImageResource(android.R.drawable.ic_lock_lock);
                 typeIcon.setColorFilter(ContextCompat.getColor(context, R.color.red_dark));
-                typeIcon.setBackgroundColor(ContextCompat.getColor(context, R.color.red_light));
+                typeIcon.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.red_light));
             } else {
-                typeIcon.setImageResource(android.R.drawable.btn_star);
                 typeIcon.setColorFilter(ContextCompat.getColor(context, R.color.blue_dark));
-                typeIcon.setBackgroundColor(ContextCompat.getColor(context, R.color.blue_light));
+                typeIcon.setBackgroundTintList(ContextCompat.getColorStateList(context, R.color.blue_light));
             }
         }
     }

@@ -15,7 +15,7 @@ public class Word {
     private List<Dialogue> dialogues;
 
     @SerializedName("sounds_url")
-    private String soundsUrl;
+    private List<String> soundsUrl;
 
     @SerializedName("create_time")
     private String createTime;
@@ -48,6 +48,6 @@ public class Word {
     public int getDangerLevel() { return dangerLevel; }
     public String getDescription() { return description; }
     public List<Dialogue> getDialogues() { return dialogues; }
-    public String getSoundsUrl() { return soundsUrl; }
+    public List<String> getSoundsUrl() { return soundsUrl; }
     public void setDialogues(List<Dialogue> dialogues) { this.dialogues = dialogues; }
 }

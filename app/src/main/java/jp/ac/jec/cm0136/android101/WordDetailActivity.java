@@ -1,5 +1,6 @@
 package jp.ac.jec.cm0136.android101;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -13,9 +14,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class WordDetailActivity extends AppCompatActivity {
 
@@ -25,6 +39,14 @@ public class WordDetailActivity extends AppCompatActivity {
     private DialogueAdapter dialogueAdapter;
     private List<Dialogue> currentDialogues = new ArrayList<>();
     private Random random = new Random();
+
+    // AI REMIX
+    private Button remixButton;
+
+    // 音频播放相关
+    private MediaPlayer mediaPlayer;
+    private int currentAudioIndex = 0;
+    private boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +82,7 @@ public class WordDetailActivity extends AppCompatActivity {
         TextView typeBadge = findViewById(R.id.type_badge);
         LinearLayout dangerLevelLayout = findViewById(R.id.danger_level_layout);
         ImageView favoriteIcon = findViewById(R.id.favorite_icon);
-        Button remixButton = findViewById(R.id.remix_button);
+        remixButton = findViewById(R.id.remix_button);
         Button playButton = findViewById(R.id.play_button);
         RecyclerView dialogueRecycler = findViewById(R.id.dialogue_recycler);
         View headerBackground = findViewById(R.id.header_background);
@@ -117,23 +139,33 @@ public class WordDetailActivity extends AppCompatActivity {
             remixButton.setText("生成中...");
 
             // 模拟AI生成新对话
-            handler.postDelayed(() -> {
-                List<Dialogue> newDialogues = generateMockAIDialogue(word);
-                currentDialogues.clear();
-                currentDialogues.addAll(newDialogues);
-                dialogueAdapter.notifyDataSetChanged();
+//            handler.postDelayed(() -> {
+//                List<Dialogue> newDialogues = generateMockAIDialogue(word);
+//                currentDialogues.clear();
+//                currentDialogues.addAll(newDialogues);
+//                dialogueAdapter.notifyDataSetChanged();
+//
+//                remixButton.setEnabled(true);
+//                remixButton.setText("AI Remix");
+//            }, 1000);
 
-                remixButton.setEnabled(true);
-                remixButton.setText("AI Remix");
-            }, 1000);
+            requestAIDialogueRemix(word);
         });
 
         playButton.setOnClickListener(v -> toggleAudioPlayback(playButton));
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_play, 0, 0, 0
+        );
 
         // 设置底部关闭按钮
         Button closeBtn = findViewById(R.id.close_button_bottom);
         if (closeBtn != null) {
             closeBtn.setOnClickListener(v -> finish());
+        }
+
+        // 自动触发AI Remix（仅当没有对话时）
+        if (word.getDialogues() == null || word.getDialogues().isEmpty()) {
+            remixButton.performClick();
         }
     }
 
@@ -167,7 +199,7 @@ public class WordDetailActivity extends AppCompatActivity {
     private void updateFavoriteIcon(ImageView icon) {
         if (isFavorite) {
             icon.setImageResource(android.R.drawable.btn_star_big_on);
-            icon.setColorFilter(ContextCompat.getColor(this, R.color.red_dark));
+            icon.setColorFilter(ContextCompat.getColor(this, R.color.yellow));
         } else {
             icon.setImageResource(android.R.drawable.btn_star_big_off);
             icon.setColorFilter(ContextCompat.getColor(this, R.color.gray));
@@ -175,31 +207,173 @@ public class WordDetailActivity extends AppCompatActivity {
     }
 
     private void toggleAudioPlayback(Button playButton) {
-        boolean isPlaying = playButton.getText().toString().equals("停止");
+//        boolean isPlaying = playButton.getText().toString().equals("停止");
+//
+//        System.out.println(word.getSoundsUrl());
+//
+//        if (isPlaying) {
+//            // 停止播放
+//            playButton.setText("音声を再生");
+//            playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                    android.R.drawable.ic_media_play, 0, 0, 0
+//            );
+//        } else {
+//            // 开始播放（模拟）
+//            playButton.setText("停止");
+//            playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                    android.R.drawable.ic_media_pause, 0, 0, 0
+//            );
+//
+//            // 模拟3秒音频播放
+//            handler.postDelayed(() -> {
+//                if (playButton.getText().toString().equals("停止")) {
+//                    playButton.setText("音声を再生");
+//                    playButton.setCompoundDrawablesWithIntrinsicBounds(
+//                            android.R.drawable.ic_media_play, 0, 0, 0
+//                    );
+//                }
+//            }, 3000);
+//        }
+
+        List<String> soundUrls = word.getSoundsUrl();
+        if (soundUrls == null || soundUrls.isEmpty()) {
+            return;
+        }
 
         if (isPlaying) {
-            // 停止播放
-            playButton.setText("音声を再生");
-            playButton.setCompoundDrawablesWithIntrinsicBounds(
-                    android.R.drawable.ic_media_play, 0, 0, 0
-            );
+            stopPlayback(playButton);
         } else {
-            // 开始播放（模拟）
-            playButton.setText("停止");
-            playButton.setCompoundDrawablesWithIntrinsicBounds(
-                    android.R.drawable.ic_media_pause, 0, 0, 0
-            );
-
-            // 模拟3秒音频播放
-            handler.postDelayed(() -> {
-                if (playButton.getText().toString().equals("停止")) {
-                    playButton.setText("音声を再生");
-                    playButton.setCompoundDrawablesWithIntrinsicBounds(
-                            android.R.drawable.ic_media_play, 0, 0, 0
-                    );
-                }
-            }, 3000);
+            startPlayback(soundUrls, playButton);
         }
+    }
+
+    // 开始播放
+    private void startPlayback(List<String> soundUrls, Button playButton) {
+        isPlaying = true;
+        currentAudioIndex = 0;
+
+        playButton.setText("停止");
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_pause, 0, 0, 0
+        );
+
+        playNext(soundUrls, playButton);
+    }
+
+    // 顺序播放 - 播放下一个（递归）
+    private void playNext(List<String> soundUrls, Button playButton) {
+
+        if (!isPlaying || currentAudioIndex >= soundUrls.size()) {
+            stopPlayback(playButton);
+            return;
+        }
+
+        String url = soundUrls.get(currentAudioIndex);
+
+        releaseMediaPlayer();
+
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.setOnPreparedListener(MediaPlayer::start);
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                currentAudioIndex++;
+                playNext(soundUrls, playButton);
+            });
+
+            mediaPlayer.prepareAsync();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            stopPlayback(playButton);
+        }
+    }
+
+    // 停止播放
+    private void stopPlayback(Button playButton) {
+        isPlaying = false;
+        currentAudioIndex = 0;
+
+        releaseMediaPlayer();
+
+        playButton.setText("音声を再生");
+        playButton.setCompoundDrawablesWithIntrinsicBounds(
+                android.R.drawable.ic_media_play, 0, 0, 0
+        );
+    }
+
+    // 释放 MediaPlayer
+    private void releaseMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    private void requestAIDialogueRemix(Word word) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .build();
+
+        String url = "https://takeruyc.codemoe.com/api/v1/app/word/updateItemDialogue?id="
+                + word.getId();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    remixButton.setEnabled(true);
+                    remixButton.setText("AI Remix");
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+                    });
+                    return;
+                }
+
+                String json = response.body().string();
+
+                Gson gson = new Gson();
+                Type type = new TypeToken<ApiResponse<List<Dialogue>>>(){}.getType();
+                ApiResponse<List<Dialogue>> apiResponse =
+                        gson.fromJson(json, type);
+
+                if (apiResponse != null && apiResponse.success && apiResponse.result != null) {
+                    runOnUiThread(() -> {
+                        currentDialogues.clear();
+                        currentDialogues.addAll(apiResponse.result);
+                        dialogueAdapter.notifyDataSetChanged();
+
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+
+                        // 刷新列表中的对话信息
+                        DataManager.initializeWords(() -> {
+                            // do nothing...
+                        });
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        remixButton.setEnabled(true);
+                        remixButton.setText("AI Remix");
+                    });
+                }
+            }
+        });
     }
 
     private List<Dialogue> generateMockAIDialogue(Word word) {
@@ -230,5 +404,12 @@ public class WordDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        isPlaying = false;
+        releaseMediaPlayer();
     }
 }
