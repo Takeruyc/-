@@ -168,6 +168,11 @@ public class WordDetailActivity extends AppCompatActivity {
         if (closeBtn != null) {
             closeBtn.setOnClickListener(v -> finish());
         }
+
+        // 自动触发AI Remix（仅当没有对话时）
+        if (word.getDialogues() == null || word.getDialogues().isEmpty()) {
+            remixButton.performClick();
+        }
     }
 
     private void setupDangerLevel(LinearLayout layout, int level) {
@@ -200,7 +205,7 @@ public class WordDetailActivity extends AppCompatActivity {
     private void updateFavoriteIcon(ImageView icon) {
         if (isFavorite) {
             icon.setImageResource(android.R.drawable.btn_star_big_on);
-            icon.setColorFilter(ContextCompat.getColor(this, R.color.red_dark));
+            icon.setColorFilter(ContextCompat.getColor(this, R.color.yellow));
         } else {
             icon.setImageResource(android.R.drawable.btn_star_big_off);
             icon.setColorFilter(ContextCompat.getColor(this, R.color.gray));

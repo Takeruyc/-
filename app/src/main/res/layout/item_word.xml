@@ -3,13 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/white"
+    android:background="@drawable/bg_rounded_corners"
     android:padding="16dp"
     android:layout_marginBottom="8dp"
     android:clickable="true"
-    android:focusable="true"
-    android:elevation="2dp"
-    android:foreground="?attr/selectableItemBackground">
+    android:focusable="true">
 
     <!-- 左边内容 -->
     <LinearLayout

@@ -55,10 +55,6 @@ public class LabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lab);
         setupViews();
-
-        if (API_KEY.isEmpty()) {
-            warningText.setVisibility(View.VISIBLE);
-        }
     }
 
     private void setupViews() {
