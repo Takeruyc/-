@@ -210,14 +210,14 @@ public class LabActivity extends AppCompatActivity {
         setupDangerDots(result.getDangerLevel());
 
         // Save to history
-        AnalysisHistoryItem historyItem = new AnalysisHistoryItem(
-                inputText,
-                result.getScore(),
-                result.getDangerLevel(),
-                result.getFeedback(),
-                result.getVibe()
-        );
-        SharedPrefManager.saveAnalysisHistory(this, historyItem);
+//        AnalysisHistoryItem historyItem = new AnalysisHistoryItem(
+//                inputText,
+//                result.getScore(),
+//                result.getDangerLevel(),
+//                result.getFeedback(),
+//                result.getVibe()
+//        );
+//        SharedPrefManager.saveAnalysisHistory(this, historyItem);
     }
 
     private void setupDangerDots(int level) {
