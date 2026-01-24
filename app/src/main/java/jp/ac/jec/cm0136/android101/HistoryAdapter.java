@@ -11,9 +11,15 @@ import java.util.List;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
     private final List<AnalysisHistoryItem> historyItems;
+    private final OnHistoryItemClickListener listener;
 
-    public HistoryAdapter(List<AnalysisHistoryItem> historyItems) {
+    public interface OnHistoryItemClickListener {
+        void onItemClick(AnalysisHistoryItem item);
+    }
+
+    public HistoryAdapter(List<AnalysisHistoryItem> historyItems, OnHistoryItemClickListener listener) {
         this.historyItems = historyItems;
+        this.listener = listener;
     }
 
     @NonNull
@@ -26,7 +32,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         AnalysisHistoryItem item = historyItems.get(position);
-        holder.bind(item);
+        holder.bind(item, listener);
     }
 
     @Override
@@ -46,10 +52,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
             timestampText = itemView.findViewById(R.id.history_timestamp_text);
         }
 
-        public void bind(AnalysisHistoryItem item) {
+        public void bind(final AnalysisHistoryItem item, final OnHistoryItemClickListener listener) {
             inputText.setText(item.getInputText());
             scoreText.setText(item.getScore() + "点");
             timestampText.setText(item.getFormattedTimestamp());
+            itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }
 }

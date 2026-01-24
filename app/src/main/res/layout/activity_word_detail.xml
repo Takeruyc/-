@@ -27,19 +27,6 @@
             android:gravity="center"
             android:paddingHorizontal="24dp">
 
-            <!-- 关闭按钮 -->
-            <ImageView
-                android:id="@+id/close_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:tint="@color/white"
-                android:background="@color/black_alpha"
-                android:padding="8dp"
-                android:layout_gravity="end|top"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp" />
-
             <!-- 单词 -->
             <TextView
                 android:id="@+id/word_text"
@@ -50,7 +37,8 @@
                 android:textStyle="bold"
                 android:textColor="@color/white"
                 android:gravity="center"
-                android:letterSpacing="0.05" />
+                android:letterSpacing="0.05"
+                android:layout_marginTop="56dp" />
         </LinearLayout>
 
         <!-- 内容区域 -->

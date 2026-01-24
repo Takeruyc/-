@@ -128,7 +128,7 @@ public class HomeFragment extends Fragment {
         isTodayFavorite = SharedPrefManager.isFavorite(requireContext(), todayWord.getId());
         todayWordText.setText(todayWord.getWord());
         todayWordReading.setText(todayWord.getReading());
-        todayWordDate.setText("今日の単語");
+//        todayWordDate.setText("今日の単語");
         updateFavoriteIcon();
     }
 
@@ -189,7 +189,11 @@ public class HomeFragment extends Fragment {
             updateTodayWordUI(newWord);
         });
 
-        aiLabPromo.setOnClickListener(v -> startActivity(LabActivity.createIntent(requireContext())));
+        aiLabPromo.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToLab();
+            }
+        });
 
         standardTabButton.setOnClickListener(v -> {
             if (!isDataLoaded) return;

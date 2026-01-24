@@ -123,9 +123,7 @@ public class WordAdapter extends ArrayAdapter<Word> {
 
         for (Word word : originalList) {
             boolean matchesSearch = currentSearch.isEmpty() ||
-                    word.getWord().toLowerCase().contains(currentSearch) ||
-                    word.getMeaning().toLowerCase().contains(currentSearch) ||
-                    word.getReading().toLowerCase().contains(currentSearch);
+                    word.getWord().toLowerCase().contains(currentSearch);
 
             boolean matchesFilter;
             if ("all".equals(filterType) || "すべて".equals(filterType)) {

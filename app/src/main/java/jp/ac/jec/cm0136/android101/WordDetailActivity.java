@@ -80,7 +80,6 @@ public class WordDetailActivity extends AppCompatActivity {
 
     private void setupUI() {
         // 获取所有View
-        ImageView closeButton = findViewById(R.id.close_button);
         TextView wordText = findViewById(R.id.word_text);
         TextView readingText = findViewById(R.id.reading_text);
         TextView meaningText = findViewById(R.id.meaning_text);
@@ -128,8 +127,6 @@ public class WordDetailActivity extends AppCompatActivity {
         dialogueRecycler.setAdapter(dialogueAdapter);
 
         // 设置按钮点击事件
-        closeButton.setOnClickListener(v -> finish());
-
         favoriteIcon.setOnClickListener(v -> {
             isFavorite = !isFavorite;
             if (isFavorite) {

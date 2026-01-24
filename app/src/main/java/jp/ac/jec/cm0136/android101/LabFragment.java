@@ -1,20 +1,23 @@
 package jp.ac.jec.cm0136.android101;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,8 +25,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -32,11 +33,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class LabActivity extends AppCompatActivity {
+public class LabFragment extends Fragment {
 
     // Views
     private EditText inputEditText;
-    private Button analyzeButton, retryButton;
+    private Button analyzeButton;
     private CardView resultLayout;
     private ProgressBar progressBar;
     private CircularProgressBar scoreProgressBar;
@@ -45,47 +46,47 @@ public class LabActivity extends AppCompatActivity {
     private ImageView historyButton;
 
     // Constants
-    private static final String API_KEY = ""; // Simulate no API key
     private static final int MAX_INPUT_LENGTH = 80;
 
     private final Handler handler = new Handler();
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lab);
-        setupViews();
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_lab, container, false);
     }
 
-    private void setupViews() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViews(view);
+    }
+
+    private void setupViews(View view) {
         // Header
-        ImageView backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(v -> finish());
-        historyButton = findViewById(R.id.history_button);
+        historyButton = view.findViewById(R.id.history_button);
         historyButton.setOnClickListener(v -> showHistory());
 
         // Input
-        inputEditText = findViewById(R.id.input_edit_text);
-        charCountText = findViewById(R.id.char_count_text);
-        analyzeButton = findViewById(R.id.analyze_button);
+        inputEditText = view.findViewById(R.id.input_edit_text);
+        charCountText = view.findViewById(R.id.char_count_text);
+        analyzeButton = view.findViewById(R.id.analyze_button);
 
         // States
-        emptyStateLayout = findViewById(R.id.empty_state);
-        progressBar = findViewById(R.id.progress_bar);
-        resultLayout = findViewById(R.id.result_layout);
-        retryButton = findViewById(R.id.retry_button);
-        warningText = findViewById(R.id.warning_text);
+        emptyStateLayout = view.findViewById(R.id.empty_state);
+        progressBar = view.findViewById(R.id.progress_bar);
+        resultLayout = view.findViewById(R.id.result_layout);
+        warningText = view.findViewById(R.id.warning_text);
 
         // Result
-        scoreProgressBar = findViewById(R.id.score_progress_bar);
-        dangerDotsLayout = findViewById(R.id.danger_dots_layout);
-        vibeText = findViewById(R.id.vibe_text);
-        feedbackText = findViewById(R.id.feedback_text);
+        scoreProgressBar = view.findViewById(R.id.score_progress_bar);
+        dangerDotsLayout = view.findViewById(R.id.danger_dots_layout);
+        vibeText = view.findViewById(R.id.vibe_text);
+        feedbackText = view.findViewById(R.id.feedback_text);
 
         // Listeners
         setupInputValidation();
         analyzeButton.setOnClickListener(v -> analyzeText());
-        retryButton.setOnClickListener(v -> resetToInitialState());
     }
 
     private void setupInputValidation() {
@@ -117,17 +118,8 @@ public class LabActivity extends AppCompatActivity {
 
         showLoadingState(true);
 
-        // Simulate API call
-//            handler.postDelayed(() -> {
-//                showLoadingState(false);
-//                AnalysisResult result = DataManager.getMockAnalysisResult();
-//                displayResults(input, result);
-//            }, 1500);
-
         try {
-            // 对 text 做 URL 编码
             String encodedText = URLEncoder.encode(input, "UTF-8");
-
             String url = "https://takeruyc.codemoe.com/api/v1/app/aiLab/kotobaCheck?text=" + encodedText;
 
             OkHttpClient client = new OkHttpClient.Builder()
@@ -143,34 +135,33 @@ public class LabActivity extends AppCompatActivity {
 
             client.newCall(request).enqueue(new Callback() {
                 @Override
-                public void onFailure(Call call, IOException e) {
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
-                    runOnUiThread(() -> {
-                        showLoadingState(false);
-                        // 你可以在这里 toast 一个错误提示
-                    });
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> showLoadingState(false));
+                    }
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     if (!response.isSuccessful()) {
-                        runOnUiThread(() -> showLoadingState(false));
+                         if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> showLoadingState(false));
+                        }
                         return;
                     }
 
                     String json = response.body().string();
-
-                    // 解析 JSON
                     AnalysisResult result = parseAnalysisResult(json);
 
-                    System.out.println(json);
-
-                    runOnUiThread(() -> {
-                        showLoadingState(false);
-                        if (result != null) {
-                            displayResults(input, result);
-                        }
-                    });
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            showLoadingState(false);
+                            if (result != null) {
+                                displayResults(input, result);
+                            }
+                        });
+                    }
                 }
             });
 
@@ -180,56 +171,35 @@ public class LabActivity extends AppCompatActivity {
         }
     }
 
-    // 解析接口返回的json数据
     private AnalysisResult parseAnalysisResult(String json){
         Gson gson = new Gson();
-
         Type type = new TypeToken<ApiResponse<AnalysisResult>>() {}.getType();
         ApiResponse<AnalysisResult> response = gson.fromJson(json, type);
-
-        if (response != null && response.result != null) {
-            return response.result;
-        } else {
-            return null;
-        }
+        return response != null ? response.result : null;
     }
 
-    // 展示返回数据
     private void displayResults(String inputText, AnalysisResult result) {
         resultLayout.setVisibility(View.VISIBLE);
-        retryButton.setVisibility(View.VISIBLE);
 
-        // Set score on CircularProgressBar
         scoreProgressBar.setProgress(result.getScore());
-
-        // Set feedback and vibe
         feedbackText.setText(result.getFeedback());
         vibeText.setText(String.format("雰囲気: %s", result.getVibe()));
 
-        // Set danger level dots
         setupDangerDots(result.getDangerLevel());
-
-        // Save to history
-//        AnalysisHistoryItem historyItem = new AnalysisHistoryItem(
-//                inputText,
-//                result.getScore(),
-//                result.getDangerLevel(),
-//                result.getFeedback(),
-//                result.getVibe()
-//        );
-//        SharedPrefManager.saveAnalysisHistory(this, historyItem);
     }
 
     private void setupDangerDots(int level) {
         dangerDotsLayout.removeAllViews();
         for (int i = 0; i < 5; i++) {
-            View dot = new View(this);
+            View dot = new View(getContext());
             int dotSize = dpToPx(16);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dotSize, dotSize);
             params.setMargins(dpToPx(4), 0, dpToPx(4), 0);
             dot.setLayoutParams(params);
-            dot.setBackgroundResource(R.drawable.dot_background); // Use a drawable for shape
-            dot.getBackground().setTint(i < level ? ContextCompat.getColor(this, R.color.red_dark) : ContextCompat.getColor(this, R.color.gray_light));
+            dot.setBackgroundResource(R.drawable.dot_background);
+            if (getContext() != null) {
+                 dot.getBackground().setTint(i < level ? ContextCompat.getColor(getContext(), R.color.red_dark) : ContextCompat.getColor(getContext(), R.color.gray_light));
+            }
             dangerDotsLayout.addView(dot);
         }
     }
@@ -242,33 +212,22 @@ public class LabActivity extends AppCompatActivity {
 
         if (isLoading) {
             resultLayout.setVisibility(View.GONE);
-            retryButton.setVisibility(View.GONE);
         }
     }
 
-    private void resetToInitialState() {
-        resultLayout.setVisibility(View.GONE);
-        retryButton.setVisibility(View.GONE);
-        emptyStateLayout.setVisibility(View.VISIBLE);
-        inputEditText.setText("");
-        inputEditText.setEnabled(true);
-    }
-
     private void showHistory() {
-        HistoryDialogFragment dialogFragment = new HistoryDialogFragment();
-        dialogFragment.show(getSupportFragmentManager(), "history_dialog");
+        if (getFragmentManager() != null) {
+            HistoryDialogFragment dialogFragment = new HistoryDialogFragment();
+            dialogFragment.show(getParentFragmentManager(), "history_dialog");
+        }
     }
 
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
-    public static Intent createIntent(android.content.Context context) {
-        return new Intent(context, LabActivity.class);
-    }
-
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
     }

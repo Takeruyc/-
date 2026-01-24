@@ -1,5 +1,6 @@
 package jp.ac.jec.cm0136.android101;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class HistoryDialogFragment extends DialogFragment {
+public class HistoryDialogFragment extends DialogFragment implements HistoryAdapter.OnHistoryItemClickListener {
 
     private HistoryAdapter adapter;
     private final List<AnalysisHistoryItem> historyList = new ArrayList<>();
@@ -47,9 +48,7 @@ public class HistoryDialogFragment extends DialogFragment {
         RecyclerView recyclerView = view.findViewById(R.id.history_recycler_view);
         ImageView closeButton = view.findViewById(R.id.close_history_button);
 
-        List<AnalysisHistoryItem> history = SharedPrefManager.getAnalysisHistory(requireContext());
-
-        adapter = new HistoryAdapter(historyList);
+        adapter = new HistoryAdapter(historyList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
@@ -67,13 +66,15 @@ public class HistoryDialogFragment extends DialogFragment {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(
-                                requireContext(),
-                                "履歴の取得に失敗しました",
-                                Toast.LENGTH_SHORT
-                        ).show()
-                );
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(
+                                    requireContext(),
+                                    "履歴の取得に失敗しました",
+                                    Toast.LENGTH_SHORT
+                            ).show()
+                    );
+                }
             }
 
             @Override
@@ -90,11 +91,13 @@ public class HistoryDialogFragment extends DialogFragment {
 
                 if (apiResponse == null || apiResponse.result == null) return;
 
-                requireActivity().runOnUiThread(() -> {
-                    historyList.clear();
-                    historyList.addAll(apiResponse.result);
-                    adapter.notifyDataSetChanged();
-                });
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        historyList.clear();
+                        historyList.addAll(apiResponse.result);
+                        adapter.notifyDataSetChanged();
+                    });
+                }
             }
         });
     }
@@ -106,5 +109,14 @@ public class HistoryDialogFragment extends DialogFragment {
             getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
+    }
+
+    @Override
+    public void onItemClick(AnalysisHistoryItem item) {
+        new AlertDialog.Builder(requireContext())
+            .setTitle("AIからのアドバイス")
+            .setMessage(item.getFeedback())
+            .setPositiveButton("閉じる", null)
+            .show();
     }
 }
