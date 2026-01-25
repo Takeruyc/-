@@ -1,6 +1,8 @@
 package jp.ac.jec.cm0136.android101;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +36,7 @@ public class HistoryDialogFragment extends DialogFragment implements HistoryAdap
     private final List<AnalysisHistoryItem> historyList = new ArrayList<>();
     private final OkHttpClient client = new OkHttpClient();
     private final Gson gson = new Gson();
+    private AlertDialog detailDialog;
 
     @Nullable
     @Override
@@ -57,6 +60,7 @@ public class HistoryDialogFragment extends DialogFragment implements HistoryAdap
         closeButton.setOnClickListener(v -> dismiss());
     }
 
+    // 获取所有历史记录并触发渲染
     private void fetchHistoryFromApi() {
         Request request = new Request.Builder()
                 .url("https://takeruyc.codemoe.com/api/v1/app/aiLab/history")
@@ -102,6 +106,82 @@ public class HistoryDialogFragment extends DialogFragment implements HistoryAdap
         });
     }
 
+    // 删除
+    private void deleteHistoryFromApi(AnalysisHistoryItem item) {
+        ProgressDialog loading = new ProgressDialog(requireContext());
+        loading.setMessage("削除中...");
+        loading.setCancelable(false);
+        loading.show();
+
+        String url = "https://takeruyc.codemoe.com/api/v1/app/aiLab/deleteHistory?id=" + item.getId();
+
+        System.out.println(url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                requireActivity().runOnUiThread(() -> {
+                    loading.dismiss();
+                    Toast.makeText(
+                            requireContext(),
+                            "削除に失敗しました",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response)
+                    throws IOException {
+
+                String json = response.body().string();
+                ApiResponse<?> apiResponse = new Gson().fromJson(json, ApiResponse.class);
+
+                requireActivity().runOnUiThread(() -> {
+                    loading.dismiss();
+
+                    System.out.println(response);
+
+                    if (response.isSuccessful() && apiResponse != null && apiResponse.success) {
+                        Toast.makeText(
+                                requireContext(),
+                                "削除しました",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        detailDialog.dismiss();
+                        fetchHistoryFromApi();
+                    } else {
+                        Toast.makeText(
+                                requireContext(),
+                                "削除に失敗しました",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+            }
+        });
+    }
+
+    // 删除前弹窗确认
+    private void showDeleteConfirmDialog(AnalysisHistoryItem item) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("確認")
+                .setMessage("この履歴を削除しますか？")
+                .setPositiveButton("削除", (d, w) -> {
+                    d.dismiss();
+                    deleteHistoryFromApi(item);
+                })
+                .setNegativeButton("キャンセル", null)
+                .show();
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -113,10 +193,15 @@ public class HistoryDialogFragment extends DialogFragment implements HistoryAdap
 
     @Override
     public void onItemClick(AnalysisHistoryItem item) {
-        new AlertDialog.Builder(requireContext())
-            .setTitle("AIからのアドバイス")
-            .setMessage(item.getFeedback())
-            .setPositiveButton("閉じる", null)
-            .show();
+        detailDialog = new AlertDialog.Builder(requireContext())
+                .setTitle("AIからのアドバイス")
+                .setMessage(item.getFeedback())
+                .setPositiveButton("閉じる", null)
+                .setNegativeButton("削除", (dialog, which) -> {
+                    showDeleteConfirmDialog(item);
+                })
+                .create();
+
+        detailDialog.show();
     }
 }
