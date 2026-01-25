@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AnalysisHistoryItem {
+    @SerializedName("id")
+    private final String id;
     @SerializedName("input")
     private final String inputText;
     @SerializedName("score")
@@ -20,7 +22,8 @@ public class AnalysisHistoryItem {
     @SerializedName("create_time")
     private final String createTime;
 
-    public AnalysisHistoryItem(String inputText, int score, int dangerLevel, String feedback, String vibe, String createTime) {
+    public AnalysisHistoryItem(String id, String inputText, int score, int dangerLevel, String feedback, String vibe, String createTime) {
+        this.id = id;
         this.inputText = inputText;
         this.score = score;
         this.dangerLevel = dangerLevel;
@@ -30,6 +33,8 @@ public class AnalysisHistoryItem {
     }
 
     // Getters
+    public String getId() { return id; }
+
     public String getInputText() {
         return inputText;
     }
